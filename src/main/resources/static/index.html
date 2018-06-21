@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<table id="events" border="1" width="100%">
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Summary</th>
+        <th>Details(Json)</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<button id="clear-btn">Drop All Events</button>
+<br>
+<hr>
+<h2>New payment</h2>
+<form method="post" action="/pay">
+    Amount: <input type="text" name="amount" oninput="this.value = this.value.replace(/[^0-9]/g, '');" >
+    <button>Submit</button>
+</form>
+
+<script>
+    const tbody = document.querySelector("#events tbody");
+
+    document.getElementById("clear-btn").onclick = function () {
+        fetch('clear').then(checkEvents);
+    };
+
+    checkEvents();
+    setInterval(checkEvents, 1000);
+
+    function checkEvents() {
+        fetch('/events')
+            .then(res => res.json())
+            .then(events => {
+                tbody.innerHTML = '';
+                events.forEach(event => {
+                    let tr = document.createElement("tr");
+                    let td1 = document.createElement("td");
+                    td1.innerText = event.createdAt;
+                    tr.appendChild(td1);
+                    let td2 = document.createElement("td");
+                    td2.innerText = event['summary'];
+                    tr.appendChild(td2);
+                    let td3 = document.createElement("td");
+                    td3.innerText = JSON.stringify(event.details);
+                    tr.appendChild(td3);
+                    tbody.appendChild(tr)
+                })
+            });
+    }
+</script>
+</body>
+</html>
